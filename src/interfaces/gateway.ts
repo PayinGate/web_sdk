@@ -1,0 +1,5 @@
+interface GatewayTransaction {
+
+}
+
+export { GatewayTransaction };

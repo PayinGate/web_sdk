@@ -3,9 +3,9 @@ import { GatewayTransaction, GenerateAddress, InitializeTransaction, Rates, Requ
 
 
 abstract class GatewayBP {
-    readonly apiKey: string;
-    readonly timeout: number;
-    readonly baseurl: string;
+    private readonly apiKey: string;
+    private readonly timeout: number;
+    private readonly baseurl: string;
     constructor({apiKey, timeout = 5000} : GatewayConfig) {
         if (!apiKey || typeof apiKey !== 'string') {
             throw new Error('API key must be a non-empty string');
@@ -38,11 +38,11 @@ abstract class GatewayBP {
             requestOptions['body'] = JSON.stringify(data);
         }
         const response = await fetch(`${this.baseurl}${endpoint}`, requestOptions);
+        const rJson = await response.json();
         if (!response.ok) {
-            console.log(await response.json())
-            throw new Error(`Request failed with status ${response.status}`);
+            throw new Error(`Request failed with status ${response.status}, ${JSON.stringify(rJson)}`);
         }
-        return await response.json();
+        return rJson;
     }
 
 }

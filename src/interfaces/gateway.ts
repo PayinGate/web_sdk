@@ -46,4 +46,19 @@ interface Customer {
 }
 
 
-export { GatewayTransaction, RequestType, GenerateAddress, InitializeTransaction, Rates };
+interface Transaction {
+    [key: string]: any;
+}
+
+interface GatewayError {
+    message: string;
+    code?: string;
+}
+
+interface TransactionWatcher {
+    onComplete(callback: (transaction: Transaction) => void): this;
+    onError(callback: (error: Error) => void): this;
+    onCancelled(callback: (transaction: Transaction) => void): this;
+}
+
+export { GatewayTransaction, RequestType, GenerateAddress, InitializeTransaction, Rates, Transaction, GatewayError, TransactionWatcher };

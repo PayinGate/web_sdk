@@ -1,13 +1,14 @@
 import { GatewayBP } from "./bp";
 import { GatewayConfig } from "./interfaces/blueprint";
-import { GatewayTransaction, GenerateAddress, InitializeTransaction, Rates } from "./interfaces/gateway";
+import { GatewayError, GatewayTransaction, GenerateAddress, InitializeTransaction, Rates, Transaction, TransactionWatcher } from "./interfaces/gateway";
 
-class Gateway extends GatewayBP {
+export class Gateway extends GatewayBP {
     constructor(config: GatewayConfig){
         super(config);
     }
     async generateAddress(options: GenerateAddress): Promise<Map<string, unknown>> {
         try {
+            console.log(options);
         const data = {
             transaction_id: options.id, 
             reference: options.reference, 
@@ -53,12 +54,67 @@ class Gateway extends GatewayBP {
         catch (error) {
             throw new Error(`An error occured: ${error}`);
         }
-
     }
-    async fetchRates({from, to, amount}: {from: string, to: string, amount?: number}): Promise<Map<string, any>> {
+
+    async fetchTransaction(reference: string): Promise<Transaction> {
+        try {
+            const response = await this.makeRequest(`/api/p/transaction/fetch?reference=${reference}`, null, "GET");
+            return response["data"];
+        }
+        catch(error){
+            throw new Error(error);
+        }
+    }
+
+    watchTransaction(reference: string) : TransactionWatcher {
+        let pollingNumber = 1;
+        const handlers = {
+            onComplete: null as ((transaction: Transaction) => void) | null,
+            onError: null as ((error: Error) => void) | null,
+            onCancelled: null as ((transaction: Transaction) => void) | null
+        };
+        const interval = setInterval(()=>{
+            console.log(`Polling #${pollingNumber}`);
+            pollingNumber++;
+            this.fetchTransaction(reference)
+                .then((transaction)=>{
+                    if(transaction["status"] === "completed") {
+                        clearInterval(interval);
+                        if (handlers.onComplete) handlers.onComplete(transaction);
+                    }
+                    else if (transaction["status"] === "cancelled") {
+                        clearInterval(interval);
+                        if (handlers.onCancelled) handlers.onCancelled(transaction);
+                    }
+                })
+                .catch((error)=>{
+                    clearInterval(interval);
+                    if (handlers.onError) handlers.onError(error);
+                })
+        }, 30000);
+
+
+        return {
+            onComplete(this: TransactionWatcher, callback: (transaction: Transaction) => void) {
+                handlers.onComplete = callback;
+                return this;
+            },
+            onError(this: TransactionWatcher, callback: (error: Error) => void) {
+                handlers.onError = callback;
+                return this;
+            },
+            onCancelled(this: TransactionWatcher, callback: (transaction: Transaction) => void) {
+                handlers.onCancelled = callback;
+                return this;
+            }
+        }
+    }
+
+
+    async fetchRates({from, to, amount = 0}: {from: string, to: string, amount?: number}): Promise<Map<string, any>> {
         try {
             const response = await this.makeRequest(`/api/rate/${from}/${to}?amount-${amount}`, "", "GET");
-            return response;
+            return response["data"];
         }
         catch (error) {
             throw new Error(`An error occured: ${error}`);
@@ -80,23 +136,38 @@ class Gateway extends GatewayBP {
 }
 
 
-const config : GatewayConfig = {
-    apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NGM5MWYxYy05YWU5LTQ1YWEtOTgyNS1jMTY4MDBmNzg4MWYiLCJpYXQiOjE3NDIzMTQxMjR9.I8T0blEl3DX6GqSpsR4rOCVpdxLgILA20yOtP9dSPvs",
-    timeout: 10000
-}
-const gw = new Gateway(config);
-gw.fetchRates({ from: "ngn", to: "usd", amount: 50000 }).then((rates)=>{
-    const options: InitializeTransaction = {
-        amount: 50000,
-        currency: "ngn",
-        chain: "solana",
-        coin: "usd",
-        customer: {
-            email: "ayomikunakintade@gmail.com"
-        },
-        rates: rates["data"] as Rates,
-    }
-    gw.initializeTransaction(options).then((details)=>{
-        console.log(details);
-    });
-})
+// const config : GatewayConfig = {
+//     apiKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NGM5MWYxYy05YWU5LTQ1YWEtOTgyNS1jMTY4MDBmNzg4MWYiLCJpYXQiOjE3NDIzMjc0NDd9.OUjuHWn6y0SYH5eGegzDKb_2L0nQLjIZv-3n46XKo-M",
+//     timeout: 10000
+// }
+// const gw = new Gateway(config);
+// gw.fetchRates({ from: "ngn", to: "usdc", amount: 50000 }).then((rates)=>{
+//     const options: InitializeTransaction = {
+//         amount: 50000,
+//         currency: "ngn",
+//         chain: "solana",
+//         coin: "usdc",
+//         customer: {
+//             email: "ayomikunakintade@gmail.com"
+//         },
+//         rates: rates as unknown as Rates,
+//     }
+//     gw.initializeTransaction(options).then((details)=>{
+//         console.log(details);
+//     });
+// })
+
+
+// gw.watchTransaction("gwp_EsIlf4asBW4WRqdJ4XhK9")
+//     .onComplete((transaction)=>{
+//         console.log(transaction);
+//     })
+//     .onCancelled((transaction)=>{
+//         console.log(transaction);
+//     })
+//     .onError((error)=>{
+//         console.log(error);
+//     })
+
+export * from './interfaces/blueprint';
+export * from './interfaces/gateway'; 

@@ -1,6 +1,3 @@
-import { GatewayBP } from "../bp";
-import { GatewayConfig } from "./blueprint";
-
 interface GatewayTransaction {
 
 }
@@ -26,6 +23,13 @@ interface Rates {
     rate_to_id: string
 }
 
+type DotOrHash = `${'.' | '#'}${string}`;
+
+type InitTransaction = InitWithElement | InitializeTransaction
+
+function isInitWithElement(x: any): x is InitWithElement {
+    return typeof x == "object" && x !== null && x.container !== null;
+}
 
 interface InitializeTransaction {
     amount: number,
@@ -37,6 +41,16 @@ interface InitializeTransaction {
     metadata?: Map<string, any>,
     callbackUrl?: string,
     description?: string
+}
+
+interface InitWithElement {
+    amount: number,
+    currency: string,
+    customer: Customer,
+    metadata?: Map<string, any>,
+    callbackUrl?: string,
+    description?: string,
+    container: DotOrHash
 }
 
 
@@ -61,4 +75,10 @@ interface TransactionWatcher {
     onCancelled(callback: (transaction: Transaction) => void): this;
 }
 
-export { GatewayTransaction, RequestType, GenerateAddress, InitializeTransaction, Rates, Transaction, GatewayError, TransactionWatcher };
+interface InitTransactionWatcher {
+    onComplete?: (transaction: Transaction) => void;
+    onError?: (error: Error) => void;
+    onCancelled?: (transaction: Transaction) => void;
+}
+
+export { GatewayTransaction, RequestType, GenerateAddress, InitializeTransaction, Rates, Transaction, GatewayError, TransactionWatcher, InitTransaction, isInitWithElement, InitTransactionWatcher };

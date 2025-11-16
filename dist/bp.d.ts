@@ -1,19 +1,16 @@
+import { GatewayCustomer } from "./customers/customers";
 import { GatewayConfig } from "./interfaces/blueprint";
-import { GatewayTransaction, GenerateAddress, InitializeTransaction, RequestType } from "./interfaces/gateway";
-declare abstract class GatewayBP {
+import { RequestType } from "./interfaces/gateway";
+import { GatewayRefund } from "./refunds/refunds";
+import { GatewayTransaction } from "./transactions/transactions";
+declare class Gateway {
     private readonly apiKey;
     private readonly timeout;
     private readonly baseurl;
+    readonly Transaction: GatewayTransaction;
+    readonly Customer: GatewayCustomer;
+    readonly Refund: GatewayRefund;
     constructor({ apiKey, timeout }: GatewayConfig);
-    abstract generateAddress(options: GenerateAddress): Promise<GatewayTransaction>;
-    abstract initializeTransaction(options: InitializeTransaction): Promise<Map<string, any>>;
-    abstract fetchRates({ from, to, amount }: {
-        from: string;
-        to: string;
-        amount: number;
-    }): Promise<Map<string, any>>;
-    abstract fetchCoins(): Promise<void>;
-    abstract fetchCurrencies(): Promise<void>;
-    protected makeRequest(endpoint: string, data: any, requestType: RequestType): Promise<any>;
+    makeRequest(endpoint: string, data: any, requestType: RequestType): Promise<any>;
 }
-export { GatewayBP };
+export { Gateway };

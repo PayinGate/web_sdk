@@ -1,35 +1,36 @@
+import { GatewayCustomer } from "./customers/customers";
 import { GatewayConfig } from "./interfaces/blueprint";
-import { GatewayTransaction, GenerateAddress, InitializeTransaction, Rates, RequestType } from "./interfaces/gateway";
+import { GenerateAddress, InitializeTransaction, Rates, RequestType } from "./interfaces/gateway";
+import { GatewayRefund } from "./refunds/refunds";
+import { GatewayTransaction } from "./transactions/transactions";
 
 
-abstract class GatewayBP {
+class Gateway {
     private readonly apiKey: string;
     private readonly timeout: number;
     private readonly baseurl: string;
+    
+    public readonly Transaction: GatewayTransaction;
+    public readonly Customer: GatewayCustomer;
+    public readonly Refund: GatewayRefund;
+
     constructor({apiKey, timeout = 5000} : GatewayConfig) {
         if (!apiKey || typeof apiKey !== 'string') {
             throw new Error('API key must be a non-empty string');
         }
         this.apiKey = apiKey;
         this.timeout = timeout;
-        this.baseurl = "http://localhost:3000"
-    }
+        this.baseurl = "http://localhost:3000";
 
-    abstract generateAddress(options: GenerateAddress) : Promise<GatewayTransaction>;
+        this.Transaction = new GatewayTransaction(this);
+    } 
 
-    abstract initializeTransaction(options: InitializeTransaction) : Promise<Map<string, any>>;
 
-    abstract fetchRates({from, to, amount}: {from: string, to: string, amount: number}): Promise<Map<string, any>>;
-
-    abstract fetchCoins(): Promise<void>;
-
-    abstract fetchCurrencies(): Promise<void>;
-
-    protected async makeRequest(endpoint: string, data: any, requestType: RequestType): Promise<any> {
+    async makeRequest(endpoint: string, data: any, requestType: RequestType): Promise<any> {
         const requestOptions = {
             method: requestType,
             headers: {
-                'Authorization': `Bearer ${this.apiKey}`,
+                'Authorization': `x-api-key ${this.apiKey}`,
                 'Content-Type': 'application/json',
             },
             signal: AbortSignal.timeout(this.timeout),
@@ -60,4 +61,4 @@ class GatewayError extends Error {
 }
 
 
-export { GatewayBP };
+export { Gateway };

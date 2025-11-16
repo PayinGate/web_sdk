@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GatewayBP = void 0;
-class GatewayBP {
+exports.Gateway = void 0;
+const transactions_1 = require("./transactions/transactions");
+class Gateway {
     constructor({ apiKey, timeout = 5000 }) {
         if (!apiKey || typeof apiKey !== 'string') {
             throw new Error('API key must be a non-empty string');
@@ -9,12 +10,13 @@ class GatewayBP {
         this.apiKey = apiKey;
         this.timeout = timeout;
         this.baseurl = "http://localhost:3000";
+        this.Transaction = new transactions_1.GatewayTransaction(this);
     }
     async makeRequest(endpoint, data, requestType) {
         const requestOptions = {
             method: requestType,
             headers: {
-                'Authorization': `Bearer ${this.apiKey}`,
+                'Authorization': `x-api-key ${this.apiKey}`,
                 'Content-Type': 'application/json',
             },
             signal: AbortSignal.timeout(this.timeout),
@@ -23,13 +25,14 @@ class GatewayBP {
             requestOptions['body'] = JSON.stringify(data);
         }
         const response = await fetch(`${this.baseurl}${endpoint}`, requestOptions);
+        const rJson = await response.json();
         if (!response.ok) {
-            throw new Error(`Request failed with status ${response.status}`);
+            throw new Error(`Request failed with status ${response.status}, ${JSON.stringify(rJson)}`);
         }
-        return await response.json();
+        return rJson;
     }
 }
-exports.GatewayBP = GatewayBP;
+exports.Gateway = Gateway;
 // use public api key
 class GatewayError extends Error {
     constructor(message, code) {

@@ -1,1 +1,1 @@
-{"version":3,"file":"gateway.js","sourceRoot":"","sources":["../../src/interfaces/gateway.ts"],"names":[],"mappings":""}
+{"version":3,"file":"gateway.js","sourceRoot":"","sources":["../../src/interfaces/gateway.ts"],"names":[],"mappings":";;AAmFyJ,8CAAiB;AAtD1K,SAAS,iBAAiB,CAAC,CAAM;IAC7B,OAAO,OAAO,CAAC,IAAI,QAAQ,IAAI,CAAC,KAAK,IAAI,IAAI,CAAC,CAAC,SAAS,KAAK,IAAI,CAAC;AACtE,CAAC"}

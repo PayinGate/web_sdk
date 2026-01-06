@@ -1,7 +1,7 @@
 import { Gateway } from "../bp";
 import { GenerateAddress, InitializeTransaction, InitTransaction, InitTransactionWatcher, isInitWithElement, Transaction, TransactionWatcher } from "../interfaces/gateway";
 
-const PAY_URL = "https://gw-web.ayomikunakintade.workers.dev/";
+const PAY_URL = "https://gw-web-five.vercel.app";
 
 /**
  * Functions:

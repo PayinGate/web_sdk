@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GatewayTransaction = void 0;
 const gateway_1 = require("../interfaces/gateway");
-const PAY_URL = "https://gw-web.ayomikunakintade.workers.dev/";
+const PAY_URL = "https://gw-web-five.vercel.app";
 /**
  * Functions:
  * - {@link generateAddress}

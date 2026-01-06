@@ -1,11 +1,22 @@
 import { Gateway } from "../bp";
 import { GenerateAddress, InitializeTransaction, InitTransaction, InitTransactionWatcher, isInitWithElement, Transaction, TransactionWatcher } from "../interfaces/gateway";
 
+const PAY_URL = "https://gw-web.ayomikunakintade.workers.dev/";
+
+/**
+ * Functions:
+ * - {@link generateAddress}
+ * - {@link initialize}
+ * - {@link fetchTransaction}
+ * - {@link watchTransaction}
+ * - {@link fetchRates}
+ * - {@link fetchCoins} 
+ */
 export class GatewayTransaction {
     constructor(private gateway: Gateway) {}
     async generateAddress(options: GenerateAddress): Promise<Map<string, unknown>> {
         try {
-            console.log(options);
+            // console.log(options);
         const data = {
             transaction_id: options.id, 
             reference: options.reference, 
@@ -60,7 +71,7 @@ export class GatewayTransaction {
                 }
 
                 const iframe = document.createElement('iframe');
-                iframe.src = `http://localhost:3001/pay/${transaction.reference}`;
+                iframe.src = `${PAY_URL}/pay/${transaction.reference}`;
                 iframe.width = "100%";
                 iframe.height = "100%";
                 iframe.style.border = "none";
@@ -70,13 +81,13 @@ export class GatewayTransaction {
                 iframe.style.zIndex = "1000";
                 iframe.id = "gateway_frame";
                 iframe.allow = "clipboard-write";
-                iframe.setAttribute("sandbox", "allow-scripts allow-same-origin");
+                iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-popups");
 
                 containerElement.appendChild(iframe);
 
                 window.addEventListener('message', (event) => {
-                    console.log(event);
-                    if(event.origin !== 'http://localhost:3001') return;
+                    // console.log(event);
+                    if(event.origin !== PAY_URL) return;
                     const { type, data } = event.data;
 
                     if(type == "transaction.completed") {
@@ -122,7 +133,7 @@ export class GatewayTransaction {
             onCancelled: null as ((transaction: Transaction) => void) | null
         };
         const interval = setInterval(()=>{
-            console.log(`Polling #${pollingNumber}`);
+            // console.log(`Polling #${pollingNumber}`);
             pollingNumber++;
             this.fetchTransaction(reference)
                 .then((transaction)=>{
@@ -181,4 +192,21 @@ export class GatewayTransaction {
         throw new Error("Method not implemented.");
     }
 
+}
+
+function setUserAgent(window, userAgent) {
+  if (window.navigator.userAgent != userAgent) {
+    var userAgentProp = {
+      get: function() {
+        return userAgent;
+      }
+    };
+    try {
+      Object.defineProperty(window.navigator, 'userAgent', userAgentProp);
+    } catch (e) {
+      window.navigator = Object.create(navigator, {
+        userAgent: userAgentProp
+      });
+    }
+  }
 }

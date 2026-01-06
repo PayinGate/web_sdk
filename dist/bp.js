@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Gateway = void 0;
+exports.Gateway = exports.BASE_URL = void 0;
 const transactions_1 = require("./transactions/transactions");
+exports.BASE_URL = "http://localhost:3000";
 class Gateway {
     constructor({ apiKey, timeout = 5000 }) {
         if (!apiKey || typeof apiKey !== 'string') {
@@ -9,7 +10,7 @@ class Gateway {
         }
         this.apiKey = apiKey;
         this.timeout = timeout;
-        this.baseurl = "http://localhost:3000";
+        this.baseurl = exports.BASE_URL;
         this.Transaction = new transactions_1.GatewayTransaction(this);
     }
     async makeRequest(endpoint, data, requestType) {

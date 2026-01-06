@@ -5,6 +5,8 @@ import { GatewayRefund } from "./refunds/refunds";
 import { GatewayTransaction } from "./transactions/transactions";
 
 
+export const BASE_URL =  "https://gateway-riuk.onrender.com";
+
 class Gateway {
     private readonly apiKey: string;
     private readonly timeout: number;
@@ -20,7 +22,7 @@ class Gateway {
         }
         this.apiKey = apiKey;
         this.timeout = timeout;
-        this.baseurl = "http://localhost:3000";
+        this.baseurl = BASE_URL;
 
         this.Transaction = new GatewayTransaction(this);
     } 

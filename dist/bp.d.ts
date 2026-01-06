@@ -3,6 +3,7 @@ import { GatewayConfig } from "./interfaces/blueprint";
 import { RequestType } from "./interfaces/gateway";
 import { GatewayRefund } from "./refunds/refunds";
 import { GatewayTransaction } from "./transactions/transactions";
+export declare const BASE_URL = "http://localhost:3000";
 declare class Gateway {
     private readonly apiKey;
     private readonly timeout;

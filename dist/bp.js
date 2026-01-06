@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Gateway = exports.BASE_URL = void 0;
 const transactions_1 = require("./transactions/transactions");
-exports.BASE_URL = "http://localhost:3000";
+exports.BASE_URL = "https://gateway-riuk.onrender.com";
 class Gateway {
     constructor({ apiKey, timeout = 5000 }) {
         if (!apiKey || typeof apiKey !== 'string') {

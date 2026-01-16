@@ -17,7 +17,7 @@ class Gateway {
         const requestOptions = {
             method: requestType,
             headers: {
-                'Authorization': `x-api-key ${this.apiKey}`,
+                'x-api-key': `${this.apiKey}`,
                 'Content-Type': 'application/json',
             },
             signal: AbortSignal.timeout(this.timeout),
